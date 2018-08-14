@@ -1,0 +1,6 @@
+sklearn
+h5py
+opencv-python
+mahotas
+scipy
+matplotlib

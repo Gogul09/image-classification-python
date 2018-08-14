@@ -6,12 +6,10 @@
 import h5py
 import numpy as np
 import os
-import glob
 import cv2
 from matplotlib import pyplot
 from sklearn.model_selection import train_test_split, cross_val_score
-from sklearn.model_selection import KFold, StratifiedKFold
-from sklearn.metrics import confusion_matrix, accuracy_score, classification_report
+from sklearn.model_selection import KFold
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
@@ -19,7 +17,24 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.naive_bayes import GaussianNB
 from sklearn.svm import SVC
-from sklearn.externals import joblib
+
+from common_defs import fd_hu_moments, fd_haralick, fd_histogram, fixed_size, train_path
+
+# no.of.trees for Random Forests
+num_trees = 100
+
+# train_test_split size
+test_size = 0.10
+
+# seed for reproducing same results
+seed = 9
+
+# get the training labels
+train_labels = os.listdir(train_path)
+
+# sort the training labels
+train_labels.sort()
+print(train_labels)
 
 # create all the machine learning models
 models = []
@@ -50,10 +65,10 @@ h5f_data.close()
 h5f_label.close()
 
 # verify the shape of the feature vector and labels
-print "[STATUS] features shape: {}".format(global_features.shape)
-print "[STATUS] labels shape: {}".format(global_labels.shape)
+print("[STATUS] features shape: {}".format(global_features.shape))
+print("[STATUS] labels shape: {}".format(global_labels.shape))
 
-print "[STATUS] training started..."
+print("[STATUS] training started...")
 
 # split the training and testing data
 (trainDataGlobal, testDataGlobal, trainLabelsGlobal, testLabelsGlobal) = train_test_split(np.array(global_features),
@@ -61,11 +76,11 @@ print "[STATUS] training started..."
                                                                                           test_size=test_size,
                                                                                           random_state=seed)
 
-print "[STATUS] splitted train and test data..."
-print "Train data  : {}".format(trainDataGlobal.shape)
-print "Test data   : {}".format(testDataGlobal.shape)
-print "Train labels: {}".format(trainLabelsGlobal.shape)
-print "Test labels : {}".format(testLabelsGlobal.shape)
+print("[STATUS] splitted train and test data...")
+print("Train data  : {}".format(trainDataGlobal.shape))
+print("Test data   : {}".format(testDataGlobal.shape))
+print("Train labels: {}".format(trainLabelsGlobal.shape))
+print("Test labels : {}".format(testLabelsGlobal.shape))
 
 # filter all the warnings
 import warnings
