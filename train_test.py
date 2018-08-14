@@ -120,39 +120,31 @@ clf.fit(trainDataGlobal, trainLabelsGlobal)
 test_path = "dataset/test"
 
 # loop through the test images
-for fname in os.listdir(test_path):
-    test_subpath = os.path.join(test_path, fname)
+for file in glob.glob(test_path + "/*.jpg"):
+    # read the image
+    image = cv2.imread(file)
 
-    for fname in os.listdir(test_subpath):
+    # resize the image
+    image = cv2.resize(image, fixed_size)
 
-        # get the image file name
-        file = os.path.join(test_subpath, fname)
-        print(file)
+    ####################################
+    # Global Feature extraction
+    ####################################
+    fv_hu_moments = fd_hu_moments(image)
+    fv_haralick   = fd_haralick(image)
+    fv_histogram  = fd_histogram(image)
 
-        # read the image
-        image = cv2.imread(file)
+    ###################################
+    # Concatenate global features
+    ###################################
+    global_feature = np.hstack([fv_histogram, fv_haralick, fv_hu_moments])
 
-        # resize the image
-        image = cv2.resize(image, fixed_size)
+    # predict label of test image
+    prediction = clf.predict(global_feature.reshape(1,-1))[0]
 
-        ####################################
-        # Global Feature extraction
-        ####################################
-        fv_hu_moments = fd_hu_moments(image)
-        fv_haralick   = fd_haralick(image)
-        fv_histogram  = fd_histogram(image)
+    # show predicted label on image
+    cv2.putText(image, train_labels[prediction], (20,30), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0,255,255), 3)
 
-        ###################################
-        # Concatenate global features
-        ###################################
-        global_feature = np.hstack([fv_histogram, fv_haralick, fv_hu_moments])
-
-        # predict label of test image
-        prediction = clf.predict(global_feature.reshape(1,-1))[0]
-
-        # show predicted label on image
-        cv2.putText(image, train_labels[prediction], (20,30), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0,255,255), 3)
-
-        # display the output image
-        plt.imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
-        plt.show()
+    # display the output image
+    plt.imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+    plt.show()

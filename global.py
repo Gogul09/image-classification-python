@@ -39,9 +39,9 @@ for training_name in train_labels:
 
     k = 1
     # loop over the images in each sub-folder
-    for fname in os.listdir(dir):
+    for x in range(1,images_per_class+1):
         # get the image file name
-        file = os.path.join(dir, fname)
+        file = dir + "/" + str(x) + ".jpg"
 
         # read the image and resize it to a fixed-size
         image = cv2.imread(file)
