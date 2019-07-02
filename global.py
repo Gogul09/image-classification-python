@@ -1,8 +1,6 @@
 #-----------------------------------
 # GLOBAL FEATURE EXTRACTION
 #-----------------------------------
-
-# organize imports
 from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import MinMaxScaler
 import numpy as np
@@ -11,23 +9,15 @@ import cv2
 import os
 import h5py
 
-# fixed-sizes for image
-fixed_size = tuple((500, 500))
-
-# path to training data
-train_path = "dataset/train"
-
-# no.of.trees for Random Forests
-num_trees = 100
-
-# bins for histogram
-bins = 8
-
-# train_test_split size
-test_size = 0.10
-
-# seed for reproducing same results
-seed = 9
+#--------------------
+# tunable-parameters
+#--------------------
+images_per_class = 80
+fixed_size       = tuple((500, 500))
+train_path       = "dataset/train"
+h5_data          = 'output/data.h5'
+h5_labels        = 'output/labels.h5'
+bins             = 8
 
 # feature-descriptor-1: Hu Moments
 def fd_hu_moments(image):
@@ -64,13 +54,7 @@ print(train_labels)
 
 # empty lists to hold feature vectors and labels
 global_features = []
-labels = []
-
-i, j = 0, 0
-k = 0
-
-# num of images per class
-images_per_class = 80
+labels          = []
 
 # loop over the training data sub-folders
 for training_name in train_labels:
@@ -80,7 +64,6 @@ for training_name in train_labels:
     # get the current training label
     current_label = training_name
 
-    k = 1
     # loop over the images in each sub-folder
     for x in range(1,images_per_class+1):
         # get the image file name
@@ -106,41 +89,38 @@ for training_name in train_labels:
         labels.append(current_label)
         global_features.append(global_feature)
 
-        i += 1
-        k += 1
-    print "[STATUS] processed folder: {}".format(current_label)
-    j += 1
+    print("[STATUS] processed folder: {}".format(current_label))
 
-print "[STATUS] completed Global Feature Extraction..."
+print("[STATUS] completed Global Feature Extraction...")
 
 # get the overall feature vector size
-print "[STATUS] feature vector size {}".format(np.array(global_features).shape)
+print("[STATUS] feature vector size {}".format(np.array(global_features).shape))
 
 # get the overall training label size
-print "[STATUS] training Labels {}".format(np.array(labels).shape)
+print("[STATUS] training Labels {}".format(np.array(labels).shape))
 
 # encode the target labels
 targetNames = np.unique(labels)
-le = LabelEncoder()
-target = le.fit_transform(labels)
-print "[STATUS] training labels encoded..."
+le          = LabelEncoder()
+target      = le.fit_transform(labels)
+print("[STATUS] training labels encoded...")
 
-# normalize the feature vector in the range (0-1)
-scaler = MinMaxScaler(feature_range=(0, 1))
+# scale features in the range (0-1)
+scaler            = MinMaxScaler(feature_range=(0, 1))
 rescaled_features = scaler.fit_transform(global_features)
-print "[STATUS] feature vector normalized..."
+print("[STATUS] feature vector normalized...")
 
-print "[STATUS] target labels: {}".format(target)
-print "[STATUS] target labels shape: {}".format(target.shape)
+print("[STATUS] target labels: {}".format(target))
+print("[STATUS] target labels shape: {}".format(target.shape))
 
 # save the feature vector using HDF5
-h5f_data = h5py.File('output/data.h5', 'w')
+h5f_data = h5py.File(h5_data, 'w')
 h5f_data.create_dataset('dataset_1', data=np.array(rescaled_features))
 
-h5f_label = h5py.File('output/labels.h5', 'w')
+h5f_label = h5py.File(h5_labels, 'w')
 h5f_label.create_dataset('dataset_1', data=np.array(target))
 
 h5f_data.close()
 h5f_label.close()
 
-print "[STATUS] end of training.."
+print("[STATUS] end of training..")
