@@ -28,10 +28,17 @@ warnings.filterwarnings('ignore')
 num_trees = 100
 test_size = 0.10
 seed      = 9
-test_path = "dataset/test"
-h5_data   = 'output/data.h5'
-h5_labels = 'output/labels.h5'
-scoring   = "accuracy"
+train_path = "dataset/train"
+test_path  = "dataset/test"
+h5_data    = 'output/data.h5'
+h5_labels  = 'output/labels.h5'
+scoring    = "accuracy"
+
+# get the training labels
+train_labels = os.listdir(train_path)
+
+# sort the training labels
+train_labels.sort()
 
 if not os.path.exists(test_path):
     os.makedirs(test_path)
